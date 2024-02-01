@@ -63,9 +63,10 @@
   },
   {
    "fieldname": "ss_code",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "SS Code",
+   "options": "Swayam Sevika Data",
    "read_only_depends_on": "eval:doc.status!==\"Draft\"",
    "reqd": 1,
    "unique": 1
@@ -297,7 +298,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-08 17:14:55.484136",
+ "modified": "2024-01-31 10:27:22.990345",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "Swayam Sevika Data",
