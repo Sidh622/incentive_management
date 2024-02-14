@@ -63,10 +63,9 @@
   },
   {
    "fieldname": "ss_code",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "SS Code",
-   "options": "Swayam Sevika Data",
    "read_only_depends_on": "eval:doc.status!==\"Draft\"",
    "reqd": 1,
    "unique": 1
@@ -85,23 +84,20 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "First Name",
-   "read_only_depends_on": "eval:doc.status!==\"Draft\"",
-   "reqd": 1
+   "read_only_depends_on": "eval:doc.status!==\"Draft\""
   },
   {
    "fieldname": "middle_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Middle Name",
-   "read_only_depends_on": "eval:doc.status!==\"Draft\"",
-   "reqd": 1
+   "read_only_depends_on": "eval:doc.status!==\"Draft\""
   },
   {
    "fieldname": "last_name",
    "fieldtype": "Data",
    "label": "Last Name",
-   "read_only_depends_on": "eval:doc.status!==\"Draft\"",
-   "reqd": 1
+   "read_only_depends_on": "eval:doc.status!==\"Draft\""
   },
   {
    "fieldname": "column_break_dzfy",
@@ -111,15 +107,13 @@
    "fieldname": "date_of_birth",
    "fieldtype": "Date",
    "label": "Date of Birth",
-   "read_only_depends_on": "eval:doc.status!==\"Draft\"",
-   "reqd": 1
+   "read_only_depends_on": "eval:doc.status!==\"Draft\""
   },
   {
    "fieldname": "aadhar_number",
    "fieldtype": "Data",
    "label": "Aadhar Number",
-   "read_only_depends_on": "eval:doc.status!==\"Draft\"",
-   "reqd": 1
+   "read_only_depends_on": "eval:doc.status!==\"Draft\""
   },
   {
    "fieldname": "pan_number",
@@ -136,15 +130,13 @@
    "fieldtype": "Select",
    "label": "Gender",
    "options": "\nMale\nFemale\nOther",
-   "read_only_depends_on": "eval:doc.status!==\"Draft\"",
-   "reqd": 1
+   "read_only_depends_on": "eval:doc.status!==\"Draft\""
   },
   {
    "fieldname": "phone",
    "fieldtype": "Data",
    "label": "Phone",
-   "read_only_depends_on": "eval:doc.status!==\"Draft\"",
-   "reqd": 1
+   "read_only_depends_on": "eval:doc.status!==\"Draft\""
   },
   {
    "fieldname": "section_break_bidd",
@@ -155,8 +147,7 @@
    "fieldname": "present_address",
    "fieldtype": "Small Text",
    "label": "Present Address",
-   "read_only_depends_on": "eval:doc.status!==\"Draft\"",
-   "reqd": 1
+   "read_only_depends_on": "eval:doc.status!==\"Draft\""
   },
   {
    "fieldname": "column_break_dekt",
@@ -172,8 +163,7 @@
    "fieldname": "highest_education",
    "fieldtype": "Data",
    "label": "Highest Education",
-   "read_only_depends_on": "eval:doc.status!==\"Draft\"",
-   "reqd": 1
+   "read_only_depends_on": "eval:doc.status!==\"Draft\""
   },
   {
    "default": "0",
@@ -185,13 +175,13 @@
   {
    "fieldname": "tab_break_3c2p",
    "fieldtype": "Tab Break",
-   "hidden": 1,
    "label": "Employee Details"
   },
   {
    "fieldname": "employee_id",
-   "fieldtype": "Data",
-   "label": "Employee ID"
+   "fieldtype": "Link",
+   "label": "Employee ID",
+   "options": "Employee"
   },
   {
    "fetch_from": "employee_id.first_name",
@@ -279,8 +269,7 @@
    "fieldname": "city",
    "fieldtype": "Data",
    "label": "City",
-   "read_only_depends_on": "eval:doc.status!==\"Draft\"",
-   "reqd": 1
+   "read_only_depends_on": "eval:doc.status!==\"Draft\""
   },
   {
    "fieldname": "full_name",
@@ -298,7 +287,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-01-31 10:27:22.990345",
+ "modified": "2024-02-13 17:51:22.205912",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "Swayam Sevika Data",
