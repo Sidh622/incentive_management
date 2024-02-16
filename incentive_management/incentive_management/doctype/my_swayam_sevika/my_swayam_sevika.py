@@ -1,14 +1,14 @@
 # Copyright (c) 2024, Talibsheikh16@gmail.com and contributors
 # For license information, please see license.txt
 
-# import frappe
+
+import frappe
+from frappe import _
 from frappe.model.document import Document
 
 class MySwayamSevika(Document):
 	pass
 
-import frappe
-from frappe import _
 
 @frappe.whitelist()
 def fetch_sevika_data(ss_code):
@@ -27,4 +27,19 @@ def fetch_sevika_data(ss_code):
         }
     else:
         return {}
+    
+@frappe.whitelist()
+def fetch_employee_data(employee_id):
+    # Use parameterized query to prevent SQL injection
+    sql_query = f"""
+        SELECT employee_name, designation, branch, region, department, division, cell_number
+        FROM `tabEmployee`
+        WHERE employee_id=%s
+    """
+    # Execute the query with the provided employee_id
+    result = frappe.db.sql(sql_query, (employee_id,), as_dict=True)
+    
+    return result
+
+
 

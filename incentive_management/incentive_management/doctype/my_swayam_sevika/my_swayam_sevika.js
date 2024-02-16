@@ -9,6 +9,7 @@ frappe.ui.form.on("My Swayam Sevika", {
       const eid = user.match(/\d+/)[0];
       frm.set_value("employee_id", eid);
       frm.set_value("status", ""); // Set status to blank for new forms
+      //frm.set_value("active", 1); // Set active to 1 for new forms
     }
   },
   before_save: function (frm) {
@@ -55,7 +56,17 @@ frappe.ui.form.on("My Swayam Sevika", {
     });
   },
   refresh: function (frm) {
-    // Check if the status is "Draft" and the user has the appropriate role
+    // Disable save button if status is "Approved" or "Rejected" or "Pending From MIS" and user has "MIS User" role
+    if (
+      frm.doc.status === "Approved" ||
+      frm.doc.status === "Rejected" ||
+      (frm.doc.status === "Pending From MIS" &&
+        frappe.user.has_role("MIS User"))
+    ) {
+      frm.disable_save();
+    }
+
+    // Check if the user has the appropriate role and the status is "Draft"
     if (frappe.user.has_role("BDO & BDE") && frm.doc.status === "Draft") {
       // Add custom button for "Send for Approval"
       frm
@@ -78,40 +89,11 @@ frappe.ui.form.on("My Swayam Sevika", {
           color: "#ffffff", // Set font color to white
         });
 
-      // Add delete button
-      frm
-        .add_custom_button(__("Delete"), function () {
-          // Check if the user has the appropriate role and the status is "Draft"
-          if (frappe.user.has_role("BDO & BDE") && frm.doc.status === "Draft") {
-            // Show confirmation dialog before deletion
-            frappe.confirm(
-              __("Are you sure you want to delete this document?"),
-              function () {
-                // Delete the document
-                frappe.call({
-                  method: "frappe.client.delete",
-                  args: {
-                    doctype: frm.doctype,
-                    name: frm.docname,
-                  },
-                  callback: function (r) {
-                    if (r.message) {
-                      // Redirect to specified route after successful deletion
-                      window.location.href = "/app/my-swayam-sevika";
-                    }
-                  },
-                });
-              }
-            );
-          } else {
-            frappe.msgprint(__("You are not allowed to delete this document."));
-          }
-        })
-        .addClass("btn-danger");
-
       // Hide menu button
       frm.page.menu_btn_group.toggle(false);
     }
+
+    // Check if the status is "Draft" and the user has the appropriate role
 
     // Disable save button if status is "Pending From MIS" and user has "BDO & BDE" role
     if (
@@ -120,5 +102,96 @@ frappe.ui.form.on("My Swayam Sevika", {
     ) {
       frm.disable_save();
     }
+
+    // Add custom buttons for "Approve" and "Reject" if status is "Pending From MIS" and user has "MIS User" role
+    if (
+      frm.doc.status === "Pending From MIS" &&
+      frappe.user.has_role("MIS User")
+    ) {
+      frm
+        .add_custom_button(__("Approve"), function () {
+          frappe.confirm(
+            "Are you sure you want to Approve - <b>" +
+              frm.doc.full_name +
+              "</b>?",
+            () => {
+              // action to perform if Yes is selected
+              frm.set_value("status", "Approved");
+              frm.refresh_field("status");
+              frm.save();
+            },
+            () => {
+              // action to perform if No is selected
+            }
+          );
+        })
+        .css({
+          "background-color": "#28a745", // Set green color
+          color: "#ffffff", // Set font color to white
+        });
+
+      frm
+        .add_custom_button(__("Reject"), function () {
+          frappe.confirm(
+            "Are you sure you want to Reject - <b>" +
+              frm.doc.full_name +
+              "</b>?",
+            () => {
+              // action to perform if Yes is selected
+              frm.set_value("status", "Rejected");
+              frm.set_value("active", 0); // Set active to 0 if rejected
+              frm.refresh_field("status");
+              frm.refresh_field("active");
+              frm.save();
+            },
+            () => {
+              // action to perform if No is selected
+            }
+          );
+        })
+        .css({
+          "background-color": "#dc3545", // Set red color
+          color: "#ffffff", // Set font color to white
+        });
+    }
   },
 });
+
+// // Add delete button
+// frm
+//   .add_custom_button(__("Delete"), function () {
+//     // Check if the user has the appropriate role and the status is "Draft"
+//     if (
+//       frappe.user.has_role("BDO & BDE") &&
+//       frm.doc.docstatus === 0 // Assuming "Draft" status is represented by docstatus 0
+//     ) {
+//       // Show confirmation dialog before deletion
+//       frappe.confirm(
+//         __("Are you sure you want to delete this document?"),
+//         function (confirmed) {
+//           if (confirmed) {
+//             // Delete the document
+//             frappe.call({
+//               method: "frappe.client.delete",
+//               args: {
+//                 doctype: frm.doc.doctype,
+//                 name: frm.doc.name,
+//                 with_similar: 0, // Delete only this specific document
+//               },
+//               callback: function (r) {
+//                 if (!r.exc) {
+//                   // Optional: Redirect to a new page after deletion
+//                   frappe.set_route("List", frm.doc.doctype);
+//                 }
+//               },
+//             });
+//           }
+//         }
+//       );
+//     } else {
+//       frappe.msgprint(
+//         __("You are not allowed to delete this document.")
+//       );
+//     }
+//   })
+//   .addClass("btn-danger");

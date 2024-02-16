@@ -9,8 +9,7 @@
  "field_order": [
   "employee_details_tab",
   "employee_id",
-  "emp_first_name",
-  "emp_last_name",
+  "emp_full_name",
   "designation",
   "emp_phone",
   "column_break_vlqgn",
@@ -112,28 +111,13 @@
   {
    "fieldname": "employee_details_tab",
    "fieldtype": "Tab Break",
-   "hidden": 1,
    "label": "Employee Details"
   },
   {
    "fieldname": "employee_id",
-   "fieldtype": "Link",
-   "hidden": 1,
+   "fieldtype": "Data",
    "label": "Employee ID",
-   "options": "Employee",
    "read_only": 1
-  },
-  {
-   "fetch_from": "employee_id.first_name",
-   "fieldname": "emp_first_name",
-   "fieldtype": "Data",
-   "label": "First Name"
-  },
-  {
-   "fetch_from": "employee_id.last_name",
-   "fieldname": "emp_last_name",
-   "fieldtype": "Data",
-   "label": "Last Name"
   },
   {
    "fetch_from": "employee_id.designation",
@@ -203,12 +187,18 @@
    "fieldname": "swayam_sevika_details_section",
    "fieldtype": "Section Break",
    "label": "Swayam Sevika Details"
+  },
+  {
+   "fetch_from": "employee_id.first_name",
+   "fieldname": "emp_full_name",
+   "fieldtype": "Data",
+   "label": "Full Name"
   }
  ],
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-14 16:35:11.377385",
+ "modified": "2024-02-16 16:27:16.476757",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "My Swayam Sevika",
@@ -235,6 +225,17 @@
    "read": 1,
    "report": 1,
    "role": "BDO & BDE",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS User",
    "share": 1,
    "write": 1
   }
