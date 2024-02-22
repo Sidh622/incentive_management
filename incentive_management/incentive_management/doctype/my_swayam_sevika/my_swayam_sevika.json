@@ -20,21 +20,26 @@
   "section_break_2h4jv",
   "admin_save",
   "ss_data_tab",
+  "date_and_status_section",
   "entry_date",
   "column_break_l8rfw",
   "status",
   "swayam_sevika_details_section",
   "active",
   "ss_code",
+  "find",
+  "section_break_zss5z",
   "full_name",
+  "gender",
   "date_of_birth",
+  "column_break_rwpuz",
+  "present_address",
+  "city",
+  "phone",
+  "column_break_unago",
   "aadhar_number",
   "pan_number",
-  "gender",
-  "phone",
-  "highest_education",
-  "present_address",
-  "city"
+  "highest_education"
  ],
  "fields": [
   {
@@ -42,6 +47,7 @@
    "fieldtype": "Data",
    "label": "SS Code",
    "read_only_depends_on": "eval: doc.status == \"Pending From MIS\" || doc.status == \"Approved\" || doc.status == \"Rejected\"",
+   "reqd": 1,
    "unique": 1
   },
   {
@@ -111,6 +117,7 @@
    "label": "Active"
   },
   {
+   "depends_on": "eval:frappe.user.has_role('System Manager') ",
    "fieldname": "employee_details_tab",
    "fieldtype": "Tab Break",
    "label": "Employee Details"
@@ -204,12 +211,36 @@
   {
    "fieldname": "section_break_2h4jv",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_rwpuz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_unago",
+   "fieldtype": "Column Break",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:frappe.user.has_role('System Manager') ",
+   "fieldname": "date_and_status_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_zss5z",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval: doc.status == \"\" || doc.status == \"Draft\"",
+   "fieldname": "find",
+   "fieldtype": "Button",
+   "label": "Find"
   }
  ],
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-20 15:48:43.562828",
+ "modified": "2024-02-22 17:58:31.613751",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "My Swayam Sevika",
@@ -229,6 +260,7 @@
    "write": 1
   },
   {
+   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
@@ -236,10 +268,12 @@
    "read": 1,
    "report": 1,
    "role": "BDO & BDE",
+   "select": 1,
    "share": 1,
    "write": 1
   },
   {
+   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
@@ -247,11 +281,13 @@
    "read": 1,
    "report": 1,
    "role": "MIS User",
+   "select": 1,
    "share": 1,
    "write": 1
   }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }

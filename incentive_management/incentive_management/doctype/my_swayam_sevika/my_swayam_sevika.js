@@ -2,20 +2,11 @@
 // For license information, please see license.txt
 
 frappe.ui.form.on("My Swayam Sevika", {
-  onload: function (frm) {
-    if (frm.is_new()) {
-      // Setting Employee ID for new forms
-      const user = frappe.session.user;
-      const eid = user.match(/\d+/)[0];
-      frm.set_value("employee_id", eid);
-      frm.set_value("status", ""); // Set status to blank for new forms
-      //frm.set_value("active", 1); // Set active to 1 for new forms
-    }
-  },
   before_save: function (frm) {
     // If the status is blank, set it to "Draft" before saving
     if (!frm.doc.status) {
       frm.set_value("status", "Draft");
+      frm.refresh_field("status");
     }
 
     // Check if ss_code is entered
@@ -58,11 +49,15 @@ frappe.ui.form.on("My Swayam Sevika", {
   refresh: function (frm) {
     // add custom button only if form is not new
     if (frm.is_new()) {
+      console.log("neww");
       // When form is new
       // Setting Employee ID
       const user = frappe.session.user;
       const eid = user.match(/\d+/)[0];
       frm.set_value("employee_id", eid);
+      frm.refresh_field("employee_id");
+      frm.set_value("status", "");
+      frm.refresh_field("status");
       console.log("Employee ID :", frm.doc.employee_id);
 
       // Fetching Employee Data
@@ -85,7 +80,7 @@ frappe.ui.form.on("My Swayam Sevika", {
             frm.refresh_field("designation");
 
             frm.set_value("emp_phone", employeeData.cell_number);
-            frm.refresh_field("cell_number"); // Corrected field name
+            frm.refresh_field("emp_phone"); // Corrected field name
 
             frm.set_value("region", employeeData.region);
             frm.refresh_field("region");
@@ -101,9 +96,6 @@ frappe.ui.form.on("My Swayam Sevika", {
           }
         },
       });
-    } else {
-      // When form is not new
-      console.log("Document", frm.doc.name);
     }
 
     // Add custom buttons based on user roles and document status
@@ -111,7 +103,7 @@ frappe.ui.form.on("My Swayam Sevika", {
       // When form is not new
       // Disable save button if status is "Approved" or "Rejected" or "Pending From MIS" and user has "MIS User" role
       if (
-        frm.doc.status === "Approved" ||
+        //frm.doc.status === "Approved" ||
         frm.doc.status === "Rejected" ||
         (frm.doc.status === "Pending From MIS" &&
           frappe.user.has_role("MIS User"))
@@ -207,51 +199,53 @@ frappe.ui.form.on("My Swayam Sevika", {
       }
     }
   },
-});
 
-// Adding the functionality for "Admin Save" field
-frappe.ui.form.on("My Swayam Sevika", {
+  // Define the find button function
+  find: function (frm) {
+    // Fetch ss_code from the form
+    var ssCode = frm.doc.ss_code;
+
+    // Check if ss_code is entered
+    if (!ssCode) {
+      frappe.msgprint("Please enter the SS Code.");
+      return;
+    }
+
+    // Check if ss_code exists in Swayam Sevika Data doctype
+    frappe.call({
+      method:
+        "incentive_management.incentive_management.doctype.my_swayam_sevika.my_swayam_sevika.fetch_sevika_data",
+      args: {
+        ss_code: ssCode,
+      },
+      callback: function (r) {
+        if (r.message) {
+          console.log(r.message);
+          // If ss_code exists, populate the form fields
+          var sevikaData = r.message;
+
+          frm.set_value("full_name", sevikaData.full_name);
+          frm.set_value("date_of_birth", sevikaData.date_of_birth);
+          frm.set_value("aadhar_number", sevikaData.aadhar_number);
+          frm.set_value("pan_number", sevikaData.pan_number);
+          frm.set_value("gender", sevikaData.gender);
+          frm.set_value("phone", sevikaData.phone);
+          frm.set_value("highest_education", sevikaData.highest_education);
+          frm.set_value("present_address", sevikaData.present_address);
+          frm.set_value("city", sevikaData.city);
+
+          // Refresh form fields
+          frm.refresh_fields();
+        } else {
+          // If ss_code doesn't exist, show a message
+          frappe.msgprint("Swayam Sevika with this code does not exist.");
+        }
+      },
+    });
+  },
+
   admin_save: function (frm) {
     // Trigger save operation
     frm.save();
   },
 });
-
-// // Add delete button
-// frm
-//   .add_custom_button(__("Delete"), function () {
-//     // Check if the user has the appropriate role and the status is "Draft"
-//     if (
-//       frappe.user.has_role("BDO & BDE") &&
-//       frm.doc.docstatus === 0 // Assuming "Draft" status is represented by docstatus 0
-//     ) {
-//       // Show confirmation dialog before deletion
-//       frappe.confirm(
-//         __("Are you sure you want to delete this document?"),
-//         function (confirmed) {
-//           if (confirmed) {
-//             // Delete the document
-//             frappe.call({
-//               method: "frappe.client.delete",
-//               args: {
-//                 doctype: frm.doc.doctype,
-//                 name: frm.doc.name,
-//                 with_similar: 0, // Delete only this specific document
-//               },
-//               callback: function (r) {
-//                 if (!r.exc) {
-//                   // Optional: Redirect to a new page after deletion
-//                   frappe.set_route("List", frm.doc.doctype);
-//                 }
-//               },
-//             });
-//           }
-//         }
-//       );
-//     } else {
-//       frappe.msgprint(
-//         __("You are not allowed to delete this document.")
-//       );
-//     }
-//   })
-//   .addClass("btn-danger");
