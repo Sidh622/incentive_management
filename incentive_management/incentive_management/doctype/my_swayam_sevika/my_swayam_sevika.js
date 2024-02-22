@@ -56,104 +56,164 @@ frappe.ui.form.on("My Swayam Sevika", {
     });
   },
   refresh: function (frm) {
-    // Disable save button if status is "Approved" or "Rejected" or "Pending From MIS" and user has "MIS User" role
-    if (
-      frm.doc.status === "Approved" ||
-      frm.doc.status === "Rejected" ||
-      (frm.doc.status === "Pending From MIS" &&
-        frappe.user.has_role("MIS User"))
-    ) {
-      frm.disable_save();
+    // add custom button only if form is not new
+    if (frm.is_new()) {
+      // When form is new
+      // Setting Employee ID
+      const user = frappe.session.user;
+      const eid = user.match(/\d+/)[0];
+      frm.set_value("employee_id", eid);
+      console.log("Employee ID :", frm.doc.employee_id);
+
+      // Fetching Employee Data
+      frm.call({
+        method: "fetch_employee_data",
+        args: {
+          employee_id: frm.doc.employee_id,
+        },
+        callback: function (r) {
+          if (!r.exc) {
+            // Accessing response data
+            const employeeData = r.message[0]; // Accessing the first element of the array
+            console.log("Employee Data:", employeeData);
+
+            // Set emp_full_name field with employee's name
+            frm.set_value("emp_full_name", employeeData.employee_name);
+            frm.refresh_field("emp_full_name");
+
+            frm.set_value("designation", employeeData.designation);
+            frm.refresh_field("designation");
+
+            frm.set_value("emp_phone", employeeData.cell_number);
+            frm.refresh_field("cell_number"); // Corrected field name
+
+            frm.set_value("region", employeeData.region);
+            frm.refresh_field("region");
+
+            frm.set_value("division", employeeData.division);
+            frm.refresh_field("division");
+
+            frm.set_value("branch", employeeData.branch);
+            frm.refresh_field("branch");
+
+            frm.set_value("department", employeeData.department);
+            frm.refresh_field("department");
+          }
+        },
+      });
+    } else {
+      // When form is not new
+      console.log("Document", frm.doc.name);
     }
 
-    // Check if the user has the appropriate role and the status is "Draft"
-    if (frappe.user.has_role("BDO & BDE") && frm.doc.status === "Draft") {
-      // Add custom button for "Send for Approval"
-      frm
-        .add_custom_button(__("Send for Approval"), function () {
-          frappe.confirm(
-            "Are you sure you want to Submit Swayam Sevika Data?",
-            () => {
-              // action to perform if Yes is selected
-              frm.set_value("status", "Pending From MIS");
-              frm.refresh_field("status");
-              frm.save();
-            },
-            () => {
-              // action to perform if No is selected
-            }
-          );
-        })
-        .css({
-          "background-color": "#28a745", // Set green color
-          color: "#ffffff", // Set font color to white
-        });
+    // Add custom buttons based on user roles and document status
+    if (!frm.is_new()) {
+      // When form is not new
+      // Disable save button if status is "Approved" or "Rejected" or "Pending From MIS" and user has "MIS User" role
+      if (
+        frm.doc.status === "Approved" ||
+        frm.doc.status === "Rejected" ||
+        (frm.doc.status === "Pending From MIS" &&
+          frappe.user.has_role("MIS User"))
+      ) {
+        frm.disable_save();
+      }
 
-      // Hide menu button
-      frm.page.menu_btn_group.toggle(false);
+      // Check if the user has the appropriate role and the status is "Draft"
+      if (frappe.user.has_role("BDO & BDE") && frm.doc.status === "Draft") {
+        // Add custom button for "Send for Approval"
+        frm
+          .add_custom_button(__("Send for Approval"), function () {
+            frappe.confirm(
+              "Are you sure you want to Submit Swayam Sevika Data?",
+              () => {
+                // action to perform if Yes is selected
+                frm.set_value("status", "Pending From MIS");
+                frm.refresh_field("status");
+                frm.save();
+              },
+              () => {
+                // action to perform if No is selected
+              }
+            );
+          })
+          .css({
+            "background-color": "#28a745", // Set green color
+            color: "#ffffff", // Set font color to white
+          });
+
+        // Hide menu button
+        frm.page.menu_btn_group.toggle(false);
+      }
+
+      // Disable save button if status is "Pending From MIS" and user has "BDO & BDE" role
+      if (
+        frm.doc.status === "Pending From MIS" &&
+        frappe.user.has_role("BDO & BDE")
+      ) {
+        frm.disable_save();
+      }
+
+      // Add custom buttons for "Approve" and "Reject" if status is "Pending From MIS" and user has "MIS User" role
+      if (
+        frm.doc.status === "Pending From MIS" &&
+        frappe.user.has_role("MIS User")
+      ) {
+        frm
+          .add_custom_button(__("Approve"), function () {
+            frappe.confirm(
+              "Are you sure you want to Approve - <b>" +
+                frm.doc.full_name +
+                "</b>?",
+              () => {
+                // action to perform if Yes is selected
+                frm.set_value("status", "Approved");
+                frm.refresh_field("status");
+                frm.save();
+              },
+              () => {
+                // action to perform if No is selected
+              }
+            );
+          })
+          .css({
+            "background-color": "#28a745", // Set green color
+            color: "#ffffff", // Set font color to white
+          });
+
+        frm
+          .add_custom_button(__("Reject"), function () {
+            frappe.confirm(
+              "Are you sure you want to Reject - <b>" +
+                frm.doc.full_name +
+                "</b>?",
+              () => {
+                // action to perform if Yes is selected
+                frm.set_value("status", "Rejected");
+                frm.set_value("active", 0); // Set active to 0 if rejected
+                frm.refresh_field("status");
+                frm.refresh_field("active");
+                frm.save();
+              },
+              () => {
+                // action to perform if No is selected
+              }
+            );
+          })
+          .css({
+            "background-color": "#dc3545", // Set red color
+            color: "#ffffff", // Set font color to white
+          });
+      }
     }
+  },
+});
 
-    // Check if the status is "Draft" and the user has the appropriate role
-
-    // Disable save button if status is "Pending From MIS" and user has "BDO & BDE" role
-    if (
-      frm.doc.status === "Pending From MIS" &&
-      frappe.user.has_role("BDO & BDE")
-    ) {
-      frm.disable_save();
-    }
-
-    // Add custom buttons for "Approve" and "Reject" if status is "Pending From MIS" and user has "MIS User" role
-    if (
-      frm.doc.status === "Pending From MIS" &&
-      frappe.user.has_role("MIS User")
-    ) {
-      frm
-        .add_custom_button(__("Approve"), function () {
-          frappe.confirm(
-            "Are you sure you want to Approve - <b>" +
-              frm.doc.full_name +
-              "</b>?",
-            () => {
-              // action to perform if Yes is selected
-              frm.set_value("status", "Approved");
-              frm.refresh_field("status");
-              frm.save();
-            },
-            () => {
-              // action to perform if No is selected
-            }
-          );
-        })
-        .css({
-          "background-color": "#28a745", // Set green color
-          color: "#ffffff", // Set font color to white
-        });
-
-      frm
-        .add_custom_button(__("Reject"), function () {
-          frappe.confirm(
-            "Are you sure you want to Reject - <b>" +
-              frm.doc.full_name +
-              "</b>?",
-            () => {
-              // action to perform if Yes is selected
-              frm.set_value("status", "Rejected");
-              frm.set_value("active", 0); // Set active to 0 if rejected
-              frm.refresh_field("status");
-              frm.refresh_field("active");
-              frm.save();
-            },
-            () => {
-              // action to perform if No is selected
-            }
-          );
-        })
-        .css({
-          "background-color": "#dc3545", // Set red color
-          color: "#ffffff", // Set font color to white
-        });
-    }
+// Adding the functionality for "Admin Save" field
+frappe.ui.form.on("My Swayam Sevika", {
+  admin_save: function (frm) {
+    // Trigger save operation
+    frm.save();
   },
 });
 

@@ -17,6 +17,8 @@
   "division",
   "branch",
   "department",
+  "section_break_2h4jv",
+  "admin_save",
   "ss_data_tab",
   "entry_date",
   "column_break_l8rfw",
@@ -193,12 +195,21 @@
    "fieldname": "emp_full_name",
    "fieldtype": "Data",
    "label": "Full Name"
+  },
+  {
+   "fieldname": "admin_save",
+   "fieldtype": "Button",
+   "label": "Admin Save"
+  },
+  {
+   "fieldname": "section_break_2h4jv",
+   "fieldtype": "Section Break"
   }
  ],
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-16 16:27:16.476757",
+ "modified": "2024-02-20 15:48:43.562828",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "My Swayam Sevika",
