@@ -21,7 +21,7 @@ def fetch_sevika_data(ss_code):
             "pan_number": sevika_data.pan_number,
             "gender": sevika_data.gender,
             "phone": sevika_data.phone,
-            "highest_education": sevika_data.highest_education,
+         #   "highest_education": sevika_data.highest_education,
             "present_address": sevika_data.present_address,
             "city": sevika_data.city
         }
@@ -32,7 +32,7 @@ def fetch_sevika_data(ss_code):
 def fetch_employee_data(employee_id):
     # Use parameterized query to prevent SQL injection
     sql_query = f"""
-        SELECT employee_name, designation, branch, region, department, division, cell_number
+        SELECT employee_name, designation, branch, region, district, department, division, cell_number
         FROM `tabEmployee`
         WHERE employee_id=%s
     """

@@ -19,7 +19,6 @@
   "column_break_xlne",
   "gender",
   "phone",
-  "highest_education",
   "section_break_bidd",
   "present_address",
   "city"
@@ -92,11 +91,6 @@
    "label": "Present Address"
   },
   {
-   "fieldname": "highest_education",
-   "fieldtype": "Data",
-   "label": "Highest Education"
-  },
-  {
    "default": "Today",
    "fieldname": "entry_date",
    "fieldtype": "Date",
@@ -123,7 +117,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-22 13:07:04.616339",
+ "modified": "2024-02-23 12:12:16.689432",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "Swayam Sevika Data",
