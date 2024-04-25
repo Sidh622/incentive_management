@@ -100,32 +100,95 @@ frappe.ui.form.on("My Swayam Sevika", {
         },
       });
     }
-
+    if (frappe.user.has_role("BDOs") || frappe.user.has_role("BDEs")) {
+      var bdoBranch = frm.doc.branch;
+      console.log("BDO ki branch :" + bdoBranch);
+    }
+    if (
+      frappe.user.has_role("Team Leader - SMBG") ||
+      frappe.user.has_role("Team Leader - DDS")
+    ) {
+      var tlBranch = frm.doc.branch;
+      console.log("TL ki branch :" + tlBranch);
+    }
     // Add custom buttons based on user roles and document status
     if (!frm.is_new()) {
       // When form is not new
-      // Disable save button if status is "Approved" or "Rejected" or "Pending From MIS" and user has "MIS User" role
+      // Disable save button if status is "Approved" or "Rejected" or "Pending From TL" and user has "MIS User" role
       if (
         //frm.doc.status === "Approved" ||
         frm.doc.status === "Rejected" ||
-        (frm.doc.status === "Pending From MIS" &&
-          frappe.user.has_role("MIS User"))
+        (frm.doc.status === "Pending From TL" &&
+          frappe.user.has_role("BDOs")) ||
+        frappe.user.has_role("BDEs")
+      ) {
+        frm.disable_save();
+      }
+      if (
+        //frm.doc.status === "Approved" ||
+        frm.doc.status === "Rejected" ||
+        (frm.doc.status === "Pending From TL" &&
+          frappe.user.has_role("Team Leader - SMBG")) ||
+        frappe.user.has_role("Team Leader - DDS")
+      ) {
+        frm.disable_save();
+      }
+      if (
+        frm.doc.status === "Rejected" &&
+        (frappe.user.has_role("BDOs") || frappe.user.has_role("BDEs"))
       ) {
         frm.disable_save();
       }
 
       // Check if the user has the appropriate role and the status is "Draft"
-      if (frappe.user.has_role("BDO & BDE") && frm.doc.status === "Draft") {
+      if (
+        (frappe.user.has_role("BDOs") || frappe.user.has_role("BDEs")) &&
+        frm.doc.status === "Draft"
+      ) {
         // Add custom button for "Send for Approval"
         frm
           .add_custom_button(__("Send for Approval"), function () {
+            let tl_user = "";
+            if (frappe.user.has_role("BDOs")) {
+              tl_user = frm.doc.smbg_user_id;
+            } else if (frappe.user.has_role("BDEs")) {
+              tl_user = frm.doc.dds_user_id;
+            }
+            console.log("TL user id: " + tl_user);
             frappe.confirm(
-              "Are you sure you want to Submit Swayam Sevika Data?",
+              "<i>Do you want to send for Approval?</i>",
               () => {
                 // action to perform if Yes is selected
-                frm.set_value("status", "Pending From MIS");
-                frm.refresh_field("status");
-                frm.save();
+                frappe.call({
+                  method: "frappe.share.add",
+                  freeze: true, // Set to true to freeze the UI
+                  freeze_message: "Internet Not Stable, Please Wait...",
+                  args: {
+                    doctype: frm.doctype,
+                    name: frm.docname,
+                    user: tl_user,
+                    read: 1,
+                    write: 1,
+                    submit: 0,
+                    share: 1,
+                    notify: 1,
+                    send_email: 0, // Set this to 0 to prevent sending email notifications
+                  },
+
+                  callback: function (response) {
+                    //Display a message to the user
+                    frappe.show_alert({
+                      message: "Your Approval Request Sent Successfully ",
+                      indicator: "green",
+                    });
+                    if (frm.doc.status === "Draft") {
+                      frm.set_value("status", "Pending From TL");
+                      frm.set_value("active", true);
+                      frm.refresh_field("status");
+                      frm.save();
+                    }
+                  },
+                });
               },
               () => {
                 // action to perform if No is selected
@@ -141,25 +204,26 @@ frappe.ui.form.on("My Swayam Sevika", {
         frm.page.menu_btn_group.toggle(false);
       }
 
-      // Disable save button if status is "Pending From MIS" and user has "BDO & BDE" role
+      // Disable save button if status is "Pending From TL" and user has "BDO & BDE" role
       if (
-        frm.doc.status === "Pending From MIS" &&
-        frappe.user.has_role("BDO & BDE")
+        frm.doc.status === "Pending From TL" &&
+        (frappe.user.has_role("BDEs") || frappe.user.has_role("BDOs"))
       ) {
         frm.disable_save();
       }
 
-      // Add custom buttons for "Approve" and "Reject" if status is "Pending From MIS" and user has "MIS User" role
+      // Add custom buttons for "Approve" and "Reject" if status is "Pending From TL" and user has "MIS User" role
       if (
-        frm.doc.status === "Pending From MIS" &&
-        frappe.user.has_role("MIS User")
+        frm.doc.status === "Pending From TL" &&
+        (frappe.user.has_role("Team Leader - SMBG") ||
+          frappe.user.has_role("Team Leader - DDS"))
       ) {
         frm
           .add_custom_button(__("Approve"), function () {
             frappe.confirm(
-              "Are you sure you want to Approve - <b>" +
+              "Are you sure you want to approve the request for <b>" +
                 frm.doc.full_name +
-                "</b>?",
+                "</b>? This action cannot be undone.",
               () => {
                 // action to perform if Yes is selected
                 frm.set_value("status", "Approved");
@@ -174,14 +238,15 @@ frappe.ui.form.on("My Swayam Sevika", {
           .css({
             "background-color": "#28a745", // Set green color
             color: "#ffffff", // Set font color to white
+            cursor: "pointer", // Add cursor pointer on hover
           });
 
         frm
           .add_custom_button(__("Reject"), function () {
             frappe.confirm(
-              "Are you sure you want to Reject - <b>" +
+              "Are you sure you want to reject the request for <b>" +
                 frm.doc.full_name +
-                "</b>?",
+                "</b>? This action cannot be undone.",
               () => {
                 // action to perform if Yes is selected
                 frm.set_value("status", "Rejected");
@@ -198,6 +263,7 @@ frappe.ui.form.on("My Swayam Sevika", {
           .css({
             "background-color": "#dc3545", // Set red color
             color: "#ffffff", // Set font color to white
+            cursor: "pointer", // Add cursor pointer on hover
           });
       }
     }
@@ -251,4 +317,5 @@ frappe.ui.form.on("My Swayam Sevika", {
     // Trigger save operation
     frm.save();
   },
+  // send_to_tl: function (frm) {},
 });

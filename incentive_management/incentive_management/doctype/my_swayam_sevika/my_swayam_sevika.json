@@ -18,6 +18,12 @@
   "branch",
   "division",
   "department",
+  "team_leaders_section",
+  "dds_tl",
+  "dds_user_id",
+  "column_break_kqurf",
+  "smbg_tl",
+  "smbg_user_id",
   "section_break_2h4jv",
   "admin_save",
   "ss_data_tab",
@@ -157,9 +163,10 @@
   {
    "fetch_from": "employee_id.branch",
    "fieldname": "branch",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_standard_filter": 1,
-   "label": "Branch"
+   "label": "Branch",
+   "options": "TL and Branches"
   },
   {
    "fetch_from": "employee_id.department",
@@ -184,8 +191,9 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Status",
-   "options": "\nDraft\nPending From MIS\nApproved\nRejected"
+   "options": "\nDraft\nPending From TL\nApproved\nRejected"
   },
   {
    "fieldname": "column_break_l8rfw",
@@ -243,12 +251,45 @@
    "fieldtype": "Data",
    "label": "District",
    "read_only": 1
+  },
+  {
+   "fetch_from": "branch.smbg_employee_id",
+   "fieldname": "smbg_tl",
+   "fieldtype": "Data",
+   "label": "SMBG TL"
+  },
+  {
+   "fetch_from": "branch.dds_employee_id",
+   "fieldname": "dds_tl",
+   "fieldtype": "Data",
+   "label": "DDS TL"
+  },
+  {
+   "fieldname": "team_leaders_section",
+   "fieldtype": "Section Break",
+   "label": "Team Leaders"
+  },
+  {
+   "fieldname": "column_break_kqurf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "branch.dds_user",
+   "fieldname": "dds_user_id",
+   "fieldtype": "Data",
+   "label": "DDS User ID"
+  },
+  {
+   "fetch_from": "branch.smbg_user",
+   "fieldname": "smbg_user_id",
+   "fieldtype": "Data",
+   "label": "SMBG User ID"
   }
  ],
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-23 17:58:58.288388",
+ "modified": "2024-03-30 10:29:11.272426",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "My Swayam Sevika",
@@ -289,6 +330,45 @@
    "read": 1,
    "report": 1,
    "role": "MIS User",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "MIS Admin",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Team Leader - DDS",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Team Leader - SMBG",
    "select": 1,
    "share": 1,
    "write": 1

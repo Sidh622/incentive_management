@@ -10,13 +10,13 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": "Sahayog",
- "modified": "2024-02-22 17:40:52.139158",
+ "modified": "2024-02-28 16:00:20.416232",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "Active Swayam Sevika List",
  "owner": "Administrator",
  "prepared_report": 0,
- "query": "SELECT \n    employee_id AS `Employee ID`, \n    emp_full_name AS `Employee Name`, \n    designation AS `Designation`, \n    region AS `Region`, \n    branch AS `Branch`, \n    ss_code AS `SS Code`,  \n    full_name AS `Swayam Sevika Name`,\n    city AS `City`\nFROM \n    `tabMy Swayam Sevika`\nWHERE\n    status = 'Approved' AND\n    active = 1\nORDER BY\n    CAST(employee_id AS UNSIGNED) ASC;\n",
+ "query": "SELECT \n    employee_id AS `Employee ID`, \n    emp_full_name AS `Employee Name`, \n    designation AS `Designation`, \n    region AS `Region`,\n    district AS `District`,\n    branch AS `Branch`,\n    ss_code AS `SS Code`,  \n    full_name AS `Swayam Sevika Name`,\n    city AS `City`\nFROM \n    `tabMy Swayam Sevika`\nWHERE\n    status = 'Approved' AND\n    active = 1\nORDER BY\n    CAST(employee_id AS UNSIGNED) ASC;\n",
  "ref_doctype": "My Swayam Sevika",
  "report_name": "Active Swayam Sevika List",
  "report_type": "Query Report",
@@ -26,6 +26,9 @@
   },
   {
    "role": "All"
+  },
+  {
+   "role": "MIS Admin"
   }
  ]
 }

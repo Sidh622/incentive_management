@@ -6,6 +6,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+
 class MySwayamSevika(Document):
 	pass
 
@@ -40,6 +41,4 @@ def fetch_employee_data(employee_id):
     result = frappe.db.sql(sql_query, (employee_id,), as_dict=True)
     
     return result
-
-
 
