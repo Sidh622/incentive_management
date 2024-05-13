@@ -102,7 +102,7 @@ frappe.ui.form.on("My Swayam Sevika", {
     }
     if (frappe.user.has_role("BDOs") || frappe.user.has_role("BDEs")) {
       var bdoBranch = frm.doc.branch;
-      console.log("BDO ki branch :" + bdoBranch);
+      console.log("BDO/BDE ki branch :" + bdoBranch);
     }
     if (
       frappe.user.has_role("Team Leader - SMBG") ||
@@ -116,28 +116,23 @@ frappe.ui.form.on("My Swayam Sevika", {
       // When form is not new
       // Disable save button if status is "Approved" or "Rejected" or "Pending From TL" and user has "MIS User" role
       if (
-        //frm.doc.status === "Approved" ||
-        frm.doc.status === "Rejected" ||
+        frm.doc.status === "Draft" ||
         (frm.doc.status === "Pending From TL" &&
-          frappe.user.has_role("BDOs")) ||
-        frappe.user.has_role("BDEs")
+          (frappe.user.has_role("BDOs") || frappe.user.has_role("BDEs")))
       ) {
-        frm.disable_save();
+        frm.disable_form();
       }
       if (
-        //frm.doc.status === "Approved" ||
-        frm.doc.status === "Rejected" ||
-        (frm.doc.status === "Pending From TL" &&
-          frappe.user.has_role("Team Leader - SMBG")) ||
-        frappe.user.has_role("Team Leader - DDS")
+        (frm.doc.status === "Approved" ||
+          frm.doc.status === "Rejected" ||
+          frm.doc.status === "Pending From TL") &&
+        (frappe.user.has_role("Team Leader - SMBG") ||
+          frappe.user.has_role("Team Leader - DDS"))
       ) {
         frm.disable_save();
-      }
-      if (
-        frm.doc.status === "Rejected" &&
-        (frappe.user.has_role("BDOs") || frappe.user.has_role("BDEs"))
-      ) {
-        frm.disable_save();
+        frm.set_df_property("ss_code", "read_only", 1);
+        console.log("Work kar raha hai TL"); // Assuming "Work kar raha hai TL" is Hindi for "Work is being done by TL".
+        frm.refresh_field("ss_code");
       }
 
       // Check if the user has the appropriate role and the status is "Draft"
@@ -149,12 +144,20 @@ frappe.ui.form.on("My Swayam Sevika", {
         frm
           .add_custom_button(__("Send for Approval"), function () {
             let tl_user = "";
-            if (frappe.user.has_role("BDOs")) {
-              tl_user = frm.doc.smbg_user_id;
-            } else if (frappe.user.has_role("BDEs")) {
+            let main_tl_mail = "";
+            if (frappe.user.has_role("BDEs")) {
               tl_user = frm.doc.dds_user_id;
+              main_tl_mail = frm.doc.dds_mail;
+            } else if (frappe.user.has_role("BDOs")) {
+              tl_user = frm.doc.smbg_user_id;
+              main_tl_mail = frm.doc.smbg_mail;
             }
+            frm.doc.main_tl_id = tl_user; // Set the value of main_tl_id field
+            frm.doc.main_tl_mail = main_tl_mail;
             console.log("TL user id: " + tl_user);
+            console.log("Main TL ID : " + frm.doc.main_tl_id); // Access main_tl_id from frm.doc
+            console.log("Main TL Mail ID : " + frm.doc.main_tl_mail); // Access main_tl_mail from frm.doc
+
             frappe.confirm(
               "<i>Do you want to send for Approval?</i>",
               () => {
@@ -203,16 +206,17 @@ frappe.ui.form.on("My Swayam Sevika", {
         // Hide menu button
         frm.page.menu_btn_group.toggle(false);
       }
-
       // Disable save button if status is "Pending From TL" and user has "BDO & BDE" role
       if (
-        frm.doc.status === "Pending From TL" &&
+        (frm.doc.status === "Pending From TL" ||
+          frm.doc.status === "Approved") &&
         (frappe.user.has_role("BDEs") || frappe.user.has_role("BDOs"))
       ) {
         frm.disable_save();
+        frm.set_df_property("ss_code", "read_only", 1);
       }
 
-      // Add custom buttons for "Approve" and "Reject" if status is "Pending From TL" and user has "MIS User" role
+      // Add custom buttons for "Approve" and "Reject" if status is "Pending From TL" and user has "Team leaders" role
       if (
         frm.doc.status === "Pending From TL" &&
         (frappe.user.has_role("Team Leader - SMBG") ||
@@ -246,7 +250,7 @@ frappe.ui.form.on("My Swayam Sevika", {
             frappe.confirm(
               "Are you sure you want to reject the request for <b>" +
                 frm.doc.full_name +
-                "</b>? This action cannot be undone.",
+                "</b>? This action will <b>DELETE</b> this form & cannot be undone.",
               () => {
                 // action to perform if Yes is selected
                 frm.set_value("status", "Rejected");
@@ -254,6 +258,102 @@ frappe.ui.form.on("My Swayam Sevika", {
                 frm.refresh_field("status");
                 frm.refresh_field("active");
                 frm.save();
+
+                // Get the full name of the current user
+                frappe.db
+                  .get_value("User", frappe.session.user, [
+                    "employee_id",
+                    "full_name",
+                  ])
+                  .then((response) => {
+                    var currentUserFullName = response.message.full_name;
+                    var currentUserEmployeeID = response.message.employee_id;
+                    console.log("TL Name: " + currentUserFullName);
+                    console.log("TL Employee ID: " + currentUserEmployeeID);
+
+                    // Get the ID of the document owner
+                    var owner = frm.doc.owner;
+
+                    // Call server-side method to get the full name of the owner
+                    frm.call({
+                      method: "get_owner_full_name",
+                      args: {
+                        owner: owner, // Pass the owner ID as an argument
+                      },
+                      callback: function (response) {
+                        if (response.message) {
+                          var ownerDetails = response.message;
+                          var ownerFullName = ownerDetails.full_name;
+                          var ownerEmpid = ownerDetails.employee_id;
+                          console.log("Sender Name: " + ownerFullName);
+                          console.log("Sender Employee ID: " + ownerEmpid);
+
+                          // Create a new document in 'Rejected Records' doctype
+                          var rejectedRecord =
+                            frappe.model.get_new_doc("Rejected Records");
+                          rejectedRecord.ss_code = frm.doc.ss_code; // Copy relevant data
+                          rejectedRecord.request_by = ownerFullName; // Assign the sender's full name
+                          rejectedRecord.request_by_empid = ownerEmpid;
+                          rejectedRecord.rejected_by = currentUserFullName; // Assign the full name of the user who rejected the form
+                          rejectedRecord.rejected_by_empid =
+                            currentUserEmployeeID;
+                          // Copy other fields as needed
+
+                          frappe.db
+                            .insert(rejectedRecord)
+                            .then((doc) => {
+                              // Document created successfully
+                              console.log("Rejected records saved!");
+
+                              // Now Deleting Record
+                              frappe.db
+                                .delete_doc(frm.doc.doctype, frm.doc.name)
+                                .then(() => {
+                                  // Document deleted successfully
+                                  console.log("Main record deleted!");
+                                  if (
+                                    frappe.user.has_role("Team Leader - SMBG")
+                                  ) {
+                                    window.location.href =
+                                      "/app/my-swayam-sevika/view/list?smbg_user_id=" +
+                                      encodeURIComponent(frappe.session.user);
+                                  } else if (
+                                    frappe.user.has_role("Team Leader - DDS")
+                                  ) {
+                                    window.location.href =
+                                      "/app/my-swayam-sevika/view/list?dds_user_id=" +
+                                      encodeURIComponent(frappe.session.user);
+                                  }
+                                })
+                                .catch((err) => {
+                                  // Error occurred while deleting
+                                  console.log(
+                                    "Error deleting main record: ",
+                                    err
+                                  );
+                                });
+                            })
+                            .catch((err) => {
+                              // Error occurred while saving
+                              frappe.msgprint("Error saving record: " + err);
+                              console.log("Rejected records NOT saved!");
+                            });
+                        } else {
+                          console.log("Sender Name not found for ID: " + owner);
+                        }
+                      },
+                      error: function (err) {
+                        console.error("Error retrieving sender name: " + err);
+                      },
+                    });
+                  })
+                  .catch((err) => {
+                    // Error occurred while retrieving the full name of the current user
+                    console.log(
+                      "Error retrieving full name of current user: ",
+                      err
+                    );
+                  });
               },
               () => {
                 // action to perform if No is selected
@@ -268,7 +368,6 @@ frappe.ui.form.on("My Swayam Sevika", {
       }
     }
   },
-
   // Define the find button function
   find: function (frm) {
     // Fetch ss_code from the form
@@ -299,7 +398,6 @@ frappe.ui.form.on("My Swayam Sevika", {
           frm.set_value("pan_number", sevikaData.pan_number);
           frm.set_value("gender", sevikaData.gender);
           frm.set_value("phone", sevikaData.phone);
-          //frm.set_value("highest_education", sevikaData.highest_education);
           frm.set_value("present_address", sevikaData.present_address);
           frm.set_value("city", sevikaData.city);
 
@@ -312,10 +410,8 @@ frappe.ui.form.on("My Swayam Sevika", {
       },
     });
   },
-
   admin_save: function (frm) {
     // Trigger save operation
     frm.save();
   },
-  // send_to_tl: function (frm) {},
 });

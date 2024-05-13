@@ -42,3 +42,13 @@ def fetch_employee_data(employee_id):
     
     return result
 
+@frappe.whitelist()
+def get_owner_full_name(owner):
+    # Fetch the full name and employee ID of the user with the provided ID
+    full_name = frappe.get_value("User", owner, "full_name")
+    emp_id = frappe.get_value("User", owner, "employee_id")
+    
+    if full_name:
+        return {"full_name": full_name, "employee_id": emp_id}
+    else:
+        frappe.throw(_("Full name not found for user ID: {0}").format(owner))

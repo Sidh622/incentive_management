@@ -16,6 +16,8 @@
   "column_break_o6pdu",
   "dds_designation",
   "column_break_85tzr",
+  "dds_tl_mail",
+  "column_break_cacf5",
   "dds_user",
   "team_leader_smbg_section",
   "smbg_employee_id",
@@ -23,6 +25,8 @@
   "smbg_employee_name",
   "column_break_yhkdj",
   "smbg_designation",
+  "column_break_c05qd",
+  "smbg_tl_mail",
   "column_break_bmm3q",
   "smbg_user"
  ],
@@ -55,7 +59,7 @@
    "fetch_from": "dds_employee_id.designation",
    "fieldname": "dds_designation",
    "fieldtype": "Data",
-   "label": "Designation"
+   "label": "DDS-Designation"
   },
   {
    "fieldname": "team_leader_smbg_section",
@@ -78,7 +82,7 @@
    "fetch_from": "smbg_employee_id.designation",
    "fieldname": "smbg_designation",
    "fieldtype": "Data",
-   "label": "Designation"
+   "label": "SMBG-Designation"
   },
   {
    "fieldname": "column_break_eywba",
@@ -115,11 +119,33 @@
   {
    "fieldname": "column_break_bmm3q",
    "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "dds_employee_id.company_email",
+   "fieldname": "dds_tl_mail",
+   "fieldtype": "Data",
+   "label": "DDS-Mail",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cacf5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_c05qd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "smbg_employee_id.company_email",
+   "fieldname": "smbg_tl_mail",
+   "fieldtype": "Data",
+   "label": "SMBG-Mail ",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-28 16:46:09.414716",
+ "modified": "2024-05-10 15:47:58.776173",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "TL and Branches",
