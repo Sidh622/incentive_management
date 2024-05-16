@@ -100,31 +100,47 @@ frappe.ui.form.on("My Swayam Sevika", {
         },
       });
     }
-    if (frappe.user.has_role("BDOs") || frappe.user.has_role("BDEs")) {
+    // check if user is BDO or BDE
+    if (frappe.user.has_role("BDOs")) {
       var bdoBranch = frm.doc.branch;
-      console.log("BDO/BDE ki branch :" + bdoBranch);
+      console.log("BDO ki branch: " + bdoBranch);
+    } else if (frappe.user.has_role("BDEs")) {
+      var bdeBranch = frm.doc.branch;
+      console.log("BDE ki branch: " + bdeBranch);
     }
-    if (
-      frappe.user.has_role("Team Leader - SMBG") ||
-      frappe.user.has_role("Team Leader - DDS")
-    ) {
-      var tlBranch = frm.doc.branch;
-      console.log("TL ki branch :" + tlBranch);
+
+    // check if user is DDS or SMBG
+    if (frappe.user.has_role("Team Leader - SMBG")) {
+      var tlSMBGBranch = frm.doc.branch;
+      console.log("TL ki branch (SMBG): " + tlSMBGBranch);
+    } else if (frappe.user.has_role("Team Leader - DDS")) {
+      var tlDDSBranch = frm.doc.branch;
+      console.log("TL ki branch (DDS): " + tlDDSBranch);
     }
+
     // Add custom buttons based on user roles and document status
     if (!frm.is_new()) {
       // When form is not new
       // Disable save button if status is "Approved" or "Rejected" or "Pending From TL" and user has "MIS User" role
       if (
-        frm.doc.status === "Draft" ||
-        (frm.doc.status === "Pending From TL" &&
-          (frappe.user.has_role("BDOs") || frappe.user.has_role("BDEs")))
+        (frm.doc.status === "Draft" || frm.doc.status === "Pending From TL") &&
+        (frappe.user.has_role("BDOs") || frappe.user.has_role("BDEs"))
       ) {
         frm.disable_form();
       }
+
       if (
-        (frm.doc.status === "Approved" ||
-          frm.doc.status === "Rejected" ||
+        frm.doc.status === "Approved" &&
+        (frappe.user.has_role("BDOs") ||
+          frappe.user.has_role("BDEs") ||
+          frappe.user.has_role("Team Leader - SMBG") ||
+          frappe.user.has_role("Team Leader - DDS"))
+      ) {
+        frm.enable_form();
+      }
+
+      if (
+        (frm.doc.status === "Rejected" ||
           frm.doc.status === "Pending From TL") &&
         (frappe.user.has_role("Team Leader - SMBG") ||
           frappe.user.has_role("Team Leader - DDS"))
@@ -312,17 +328,13 @@ frappe.ui.form.on("My Swayam Sevika", {
                                   // Document deleted successfully
                                   console.log("Main record deleted!");
                                   if (
-                                    frappe.user.has_role("Team Leader - SMBG")
-                                  ) {
-                                    window.location.href =
-                                      "/app/my-swayam-sevika/view/list?smbg_user_id=" +
-                                      encodeURIComponent(frappe.session.user);
-                                  } else if (
+                                    frappe.user.has_role(
+                                      "Team Leader - SMBG"
+                                    ) ||
                                     frappe.user.has_role("Team Leader - DDS")
                                   ) {
                                     window.location.href =
-                                      "/app/my-swayam-sevika/view/list?dds_user_id=" +
-                                      encodeURIComponent(frappe.session.user);
+                                      "/app/svayam-sevika-management";
                                   }
                                 })
                                 .catch((err) => {

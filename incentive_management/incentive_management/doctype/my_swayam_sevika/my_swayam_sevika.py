@@ -52,3 +52,22 @@ def get_owner_full_name(owner):
         return {"full_name": full_name, "employee_id": emp_id}
     else:
         frappe.throw(_("Full name not found for user ID: {0}").format(owner))
+
+@frappe.whitelist()
+def delete_records_by_owner(user_id):
+    # Check if the user has any records in the "My Swayam Sevika" doctype
+    records_exist = frappe.db.exists("My Swayam Sevika", {"owner": user_id})
+    
+    # If no records exist, return True without making any API calls
+    if not records_exist:
+        return True
+    
+    try:
+       
+        # Delete records owned by the user
+        frappe.db.sql("DELETE FROM `tabMy Swayam Sevika` WHERE owner = %s", user_id)
+        frappe.db.commit()
+        return True
+    except Exception as e:
+        frappe.log_error("Error deleting records: " + str(e))
+        return False
