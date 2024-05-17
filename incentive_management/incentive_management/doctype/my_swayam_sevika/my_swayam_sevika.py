@@ -22,9 +22,9 @@ def fetch_sevika_data(ss_code):
             "pan_number": sevika_data.pan_number,
             "gender": sevika_data.gender,
             "phone": sevika_data.phone,
-         #   "highest_education": sevika_data.highest_education,
             "present_address": sevika_data.present_address,
-            "city": sevika_data.city
+            "city": sevika_data.city,
+            "branch_code":sevika_data.branch_code,
         }
     else:
         return {}
@@ -54,20 +54,51 @@ def get_owner_full_name(owner):
         frappe.throw(_("Full name not found for user ID: {0}").format(owner))
 
 @frappe.whitelist()
-def delete_records_by_owner(user_id):
-    # Check if the user has any records in the "My Swayam Sevika" doctype
-    records_exist = frappe.db.exists("My Swayam Sevika", {"owner": user_id})
+def delete_records_by_owner(user_id,employee_id):
+    # Fetch records owned by the user from the "My Swayam Sevika" doctype
+    records = frappe.get_list(
+        "My Swayam Sevika", 
+        filters={"owner": user_id},
+        fields=["ss_code", "full_name", "date_of_birth", "branch_code", 
+                "present_address", "city", "phone", "aadhar_number", "pan_number"]
+    )
+    
+    # Print fetched records for debugging
+    print("Fetched Records:", records)
     
     # If no records exist, return True without making any API calls
-    if not records_exist:
+    if not records:
         return True
     
     try:
+        # Save the records data in another doctype (e.g., "Disabled Agent Data")
+        for record in records:
+            backup_record = frappe.new_doc("Disabled Agents SS Data")
+            backup_record.update({
+                "ss_code": record.get("ss_code"),
+                "full_name": record.get("full_name"),
+                "date_of_birth": record.get("date_of_birth"),
+                "branch_code": record.get("branch_code"),
+                "present_address": record.get("present_address"),
+                "city": record.get("city"),
+                "phone": record.get("phone"),
+                "aadhar_number": record.get("aadhar_number"),
+                "pan_number": record.get("pan_number"),
+                "previous_bdobde_empid": employee_id
+
+            })
+            backup_record.insert()
+            print("Inserted Backup Record:", backup_record.name)
+        
+        print("First Records inserted successfully.")
        
         # Delete records owned by the user
         frappe.db.sql("DELETE FROM `tabMy Swayam Sevika` WHERE owner = %s", user_id)
         frappe.db.commit()
+        print("Second Records deleted successfully.")
         return True
     except Exception as e:
+        # Print the actual error message for debugging
+        print("Error deleting records:", e)
         frappe.log_error("Error deleting records: " + str(e))
         return False

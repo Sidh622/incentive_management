@@ -12,6 +12,7 @@
   "column_break_evyp",
   "section_break_byvv",
   "full_name",
+  "branch_code",
   "column_break_dzfy",
   "date_of_birth",
   "aadhar_number",
@@ -113,11 +114,16 @@
    "fieldtype": "Data",
    "label": "Full Name",
    "reqd": 1
+  },
+  {
+   "fieldname": "branch_code",
+   "fieldtype": "Data",
+   "label": "Branch Code"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-02-23 12:12:16.689432",
+ "modified": "2024-05-17 12:34:25.464318",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "Swayam Sevika Data",

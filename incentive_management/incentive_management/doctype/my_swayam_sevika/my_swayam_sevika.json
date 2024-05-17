@@ -44,6 +44,7 @@
   "full_name",
   "gender",
   "date_of_birth",
+  "branch_code",
   "column_break_rwpuz",
   "present_address",
   "city",
@@ -315,12 +316,18 @@
    "fieldname": "main_tl_mail",
    "fieldtype": "Data",
    "label": "Main TL Mail ID"
+  },
+  {
+   "fieldname": "branch_code",
+   "fieldtype": "Data",
+   "label": "Branch Code",
+   "read_only": 1
   }
  ],
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-10 17:13:12.539338",
+ "modified": "2024-05-17 15:54:25.186433",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "My Swayam Sevika",

@@ -18,7 +18,7 @@ frappe.ui.form.on("Agent Enable-Disable", {
             function () {
               // Proceed with saving the document and delete associated records
               frm.save();
-              deleteRecordsByOwner(frm.doc.user_id); // Call deleteRecordsByOwner function with userId
+              deleteRecordsByOwner(frm.doc.user_id, frm.doc.employee_id); // Call deleteRecordsByOwner function with userId
             },
             function () {
               // Revert status to 'Active' if the user cancels
@@ -32,13 +32,14 @@ frappe.ui.form.on("Agent Enable-Disable", {
 });
 
 // Function to handle deletion of records by the user
-function deleteRecordsByOwner(userId) {
+function deleteRecordsByOwner(userId, empId) {
   // Call server-side function to delete records by owner
   frappe.call({
     method:
       "incentive_management.incentive_management.doctype.my_swayam_sevika.my_swayam_sevika.delete_records_by_owner",
     args: {
       user_id: userId,
+      employee_id: empId,
     },
     callback: function (response) {
       if (response.message) {

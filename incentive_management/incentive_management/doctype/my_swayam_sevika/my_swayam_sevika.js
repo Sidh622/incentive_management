@@ -35,7 +35,7 @@ frappe.ui.form.on("My Swayam Sevika", {
           //frm.doc.highest_education = r.message.highest_education;
           frm.doc.present_address = r.message.present_address;
           frm.doc.city = r.message.city;
-
+          frm.doc.branch_code = r.message.branch_code;
           // Refresh form fields
           frm.refresh_fields();
         } else {
@@ -412,7 +412,7 @@ frappe.ui.form.on("My Swayam Sevika", {
           frm.set_value("phone", sevikaData.phone);
           frm.set_value("present_address", sevikaData.present_address);
           frm.set_value("city", sevikaData.city);
-
+          frm.set_value("branch_code", sevikaData.branch_code);
           // Refresh form fields
           frm.refresh_fields();
         } else {
