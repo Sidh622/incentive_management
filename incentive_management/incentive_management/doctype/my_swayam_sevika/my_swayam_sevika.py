@@ -5,7 +5,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-
+import re
 
 class MySwayamSevika(Document):
 	pass
@@ -102,3 +102,76 @@ def delete_records_by_owner(user_id,employee_id):
         print("Error deleting records:", e)
         frappe.log_error("Error deleting records: " + str(e))
         return False
+
+@frappe.whitelist()
+def get_sevika_counts_for_bd():
+    # Get the current logged-in user
+    user = frappe.session.user
+    
+    # Extract numerical part from the user string (e.g., "3106" from "3106@sahayog.com")
+    user_id_match = re.match(r'(\d+)', user)
+    if user_id_match:
+        user_id = user_id_match.group(1)
+    else:
+        frappe.throw("Invalid user format. Unable to extract user ID.")
+    
+    # Construct the SQL queries
+    total_query = "SELECT COUNT(*) FROM `tabMy Swayam Sevika` WHERE employee_id=%s"
+    approved_query = "SELECT COUNT(*) FROM `tabMy Swayam Sevika` WHERE employee_id=%s AND status='Approved'"
+    rejected_query = "SELECT COUNT(*) FROM `tabRejected Records` WHERE request_by_empid=%s"
+    pending_from_tl_query = "SELECT COUNT(*) FROM `tabMy Swayam Sevika` WHERE employee_id=%s AND status='Pending From TL'"
+    
+    # Execute the queries
+    total_count = frappe.db.sql(total_query, (user_id,), as_dict=False)
+    approved_count = frappe.db.sql(approved_query, (user_id,), as_dict=False)
+    rejected_count = frappe.db.sql(rejected_query, (user_id,), as_dict=False)
+    pending_from_tl_count = frappe.db.sql(pending_from_tl_query, (user_id,), as_dict=False)
+    
+    # Extract the counts from the results
+    total_sevika_count = total_count[0][0] if total_count else 0
+    approved_sevika_count = approved_count[0][0] if approved_count else 0
+    rejected_sevika_count = rejected_count[0][0] if rejected_count else 0
+    pending_from_tl_sevika_count = pending_from_tl_count[0][0] if pending_from_tl_count else 0
+    
+    return {
+        'total_count': total_sevika_count,
+        'approved_count': approved_sevika_count,
+        'rejected_count': rejected_sevika_count,
+        'pending_from_tl_count': pending_from_tl_sevika_count
+    }
+
+@frappe.whitelist()
+def get_sevika_counts_for_tl():
+    # Get the current logged-in user
+    user = frappe.session.user
+
+    user_id_match = re.match(r'(\d+)', user)
+    if user_id_match:
+        user_id = user_id_match.group(1)
+    else:
+        frappe.throw("Invalid user format. Unable to extract user ID.")
+    
+    # Construct the SQL queries
+    total_query = "SELECT COUNT(*) FROM `tabMy Swayam Sevika` WHERE main_tl_id=%s"
+    approved_query = "SELECT COUNT(*) FROM `tabMy Swayam Sevika` WHERE main_tl_id=%s AND status='Approved'"
+    rejected_query = "SELECT COUNT(*) FROM `tabRejected Records` WHERE rejected_by_empid=%s"
+    pending_from_tl_query = "SELECT COUNT(*) FROM `tabMy Swayam Sevika` WHERE main_tl_id=%s AND status='Pending From TL'"
+    
+    # Execute the queries
+    total_count = frappe.db.sql(total_query, (user,), as_dict=False)
+    approved_count = frappe.db.sql(approved_query, (user,), as_dict=False)
+    rejected_count = frappe.db.sql(rejected_query, (user_id,), as_dict=False)
+    pending_from_tl_count = frappe.db.sql(pending_from_tl_query, (user,), as_dict=False)
+    
+    # Extract the counts from the results
+    total_sevika_count = total_count[0][0] if total_count else 0
+    approved_sevika_count = approved_count[0][0] if approved_count else 0
+    rejected_sevika_count = rejected_count[0][0] if rejected_count else 0
+    pending_from_tl_sevika_count = pending_from_tl_count[0][0] if pending_from_tl_count else 0
+    
+    return {
+        'total_count': total_sevika_count,
+        'approved_count': approved_sevika_count,
+        'rejected_count': rejected_sevika_count,
+        'pending_from_tl_count': pending_from_tl_sevika_count
+    }
