@@ -198,7 +198,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "\nDraft\nPending From TL\nApproved\nRejected"
+   "options": "Draft\nPending From TL\nApproved\nRejected"
   },
   {
    "fieldname": "column_break_l8rfw",
@@ -327,7 +327,7 @@
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-17 15:54:25.186433",
+ "modified": "2024-05-27 14:11:51.918636",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "My Swayam Sevika",
