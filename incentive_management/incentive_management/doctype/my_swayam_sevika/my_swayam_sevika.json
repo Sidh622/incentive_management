@@ -122,7 +122,7 @@
    "label": "Active"
   },
   {
-   "depends_on": "eval:frappe.user.has_role(['System Manager', 'MIS User', 'MIS Admin'])",
+   "depends_on": "eval:frappe.user.has_role(['System Manager', 'MIS User', 'MIS Admin','Team Leader - SMBG','Team Leader - DDS'])",
    "fieldname": "employee_details_tab",
    "fieldtype": "Tab Break",
    "label": "Employee Details"
@@ -270,8 +270,9 @@
    "label": "DDS TL"
   },
   {
+   "depends_on": "eval:frappe.user.has_role(['System Manager', 'MIS User', 'MIS Admin'])",
    "fieldname": "team_leaders_section",
-   "fieldtype": "Section Break",
+   "fieldtype": "Tab Break",
    "label": "Team Leaders"
   },
   {
@@ -327,7 +328,7 @@
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-05-27 14:11:51.918636",
+ "modified": "2024-06-04 14:46:01.769731",
  "modified_by": "Administrator",
  "module": "Incentive Management",
  "name": "My Swayam Sevika",
